@@ -5,13 +5,17 @@ import 'react-toastify/dist/ReactToastify.css';
 import { v4 as uuidv4 } from 'uuid';
 
 const Manager = () => {
+    
+    const server_uri = import.meta.env.VITE_REACT_APP_SERVER_URI;
+    console.log(server_uri);
+
     const ref = useRef();
     const passwordRef = useRef();
     const [form, setForm] = useState({ site: "", username: "", password: "" });
     const [passwordArray, setpasswordArray] = useState([]);
 
     const getPassword = async () => {
-        let req = await fetch("http://localhost:3000/");
+        let req = await fetch(server_uri);
         let passwords = await req.json();
         await setpasswordArray(passwords);
     }
@@ -34,7 +38,7 @@ const Manager = () => {
 
     const savePassword = async () => {
         let newEntry = {...form, id:uuidv4()};
-        let res = await fetch("http://localhost:3000/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newEntry) });
+        let res = await fetch(server_uri+"save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newEntry) });
         await setpasswordArray((prevArray) => [...prevArray, newEntry]);
         await reset();
         toast.success('Password Saved', {
@@ -53,7 +57,7 @@ const Manager = () => {
     const deletePassword = async (id) => {
         let c = confirm("Do you wish to delete this password");
         if (c) {
-            let res = await fetch("http://localhost:3000/delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, id }) })
+            let res = await fetch(server_uri + "delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, id }) })
             await getPassword();
             toast('Password Deleted !', {
                 position: "top-right",
