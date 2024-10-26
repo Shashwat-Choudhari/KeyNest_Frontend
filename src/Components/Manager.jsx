@@ -3,26 +3,27 @@ import { useRef, useState, useEffect } from 'react';
 import { ToastContainer, toast, Bounce } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { v4 as uuidv4 } from 'uuid';
+import Spinner from './Spinner';
 
-const Manager = () => {
+const Manager = (props) => {
     
     const server_uri = import.meta.env.VITE_REACT_APP_SERVER_URI;
-    console.log(server_uri);
 
     const ref = useRef();
     const passwordRef = useRef();
     const [form, setForm] = useState({ site: "", username: "", password: "" });
+    const [loading, setLoading] = useState(false);
     const [passwordArray, setpasswordArray] = useState([]);
 
     const getPassword = async () => {
-        let req = await fetch(server_uri);
+        let req = await fetch(server_uri+`api/v1/passwords/${props.user_id}`);
         let passwords = await req.json();
         await setpasswordArray(passwords);
     }
 
     useEffect(() => {
         getPassword();
-    }, [])
+    }, [props])
 
 
     const togglePassword = () => {
@@ -38,8 +39,10 @@ const Manager = () => {
 
     const savePassword = async () => {
         let newEntry = {...form, id:uuidv4()};
-        let res = await fetch(server_uri+"save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newEntry) });
-        await setpasswordArray((prevArray) => [...prevArray, newEntry]);
+        setLoading(true);
+        let res = await fetch(server_uri+`api/v1/passwords/save/${props.user_id}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(newEntry) });
+        setpasswordArray((prevArray) => [...prevArray, newEntry]);
+        setLoading(false);
         await reset();
         toast.success('Password Saved', {
             position: "top-right",
@@ -57,8 +60,10 @@ const Manager = () => {
     const deletePassword = async (id) => {
         let c = confirm("Do you wish to delete this password");
         if (c) {
-            let res = await fetch(server_uri + "delete", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, id }) })
+            setLoading(true);
+            let res = await fetch(server_uri + `api/v1/passwords/delete`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({id}) });
             await getPassword();
+            setLoading(false);
             toast('Password Deleted !', {
                 position: "top-right",
                 autoClose: 1000,
@@ -134,7 +139,7 @@ const Manager = () => {
                         </div>
                     </div>
                     <div className="flex justify-center">
-                        <button onClick={savePassword} className='bg-blue-700 rounded-lg w-fit text-white border border-blue-800 px-2 py-1 hover:bg-blue-500 flex justify-center gap-1'>
+                        <button disabled = {loading} onClick={savePassword} className='bg-blue-700 rounded-lg w-fit text-white border border-blue-800 px-2 py-1 hover:bg-blue-500 flex justify-center gap-1'>
                             <lord-icon
                                 src="https://cdn.lordicon.com/fjvfsqea.json"
                                 trigger="click"
@@ -145,9 +150,10 @@ const Manager = () => {
                     </div>
                 </div>
 
-                <h1 className='text-center font-bold m-5 text-xl text-blue-900'>Your Passwords</h1>
-                {passwordArray.length === 0 && <div className='text-lg text-center'>You have No Passwords</div>}
-                {passwordArray.length !== 0 && <table className="table-auto w-full rounded-lg overflow-hidden">
+                <h1 className='text-center font-bold m-3 text-xl text-blue-900'>Your Passwords</h1>
+                {loading && <Spinner/>}
+                {!loading && passwordArray.length === 0 && <div className='text-lg text-center'>You have No Passwords</div>}
+                {!loading && passwordArray.length !== 0 && <table className="table-auto w-full rounded-lg overflow-hidden">
                     <thead className='bg-blue-400 text-white'>
                         <tr>
                             <th className='py-2'>Website</th>
