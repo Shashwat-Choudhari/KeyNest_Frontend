@@ -179,7 +179,7 @@ const Manager = (props) => {
                                 </td>
                                 <td className='py-2 text-center border-2 border-white'>
                                     <div className="flex justify-around items-center p-1">
-                                        <span className='mx-2'>{password.password}</span>
+                                        <span className='mx-2 text-dots'>{password.password}</span>
                                         <button className='p-1 rounded-md hover:bg-white' onClick={() => { copyText(password.password) }}><img src="icons/copy.svg" alt="copy" /></button>
                                     </div>
                                 </td>
