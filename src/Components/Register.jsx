@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 
 const Register = (props) => {
 
-    const server_uri = import.meta.env.VITE_REACT_APP_SERVER_URI;
+    let server_uri = import.meta.env.VITE_REACT_APP_SERVER_URI;
     const [loading, setLoading] = useState(false);
     const {
         register,

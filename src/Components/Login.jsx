@@ -6,7 +6,7 @@ import Spinner from './Spinner';
 
 const Login = (props) => {
 
-    const server_uri = import.meta.env.VITE_REACT_APP_SERVER_URI;
+    let server_uri = import.meta.env.VITE_REACT_APP_SERVER_URI;
     const [loading, setLoading] = useState(false);
     const {
         register,
